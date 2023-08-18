@@ -28,6 +28,14 @@ class Feedback(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
 
+class Downloadcv(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(100), nullable=False)
+
+class Clickdev(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(100), nullable=False)
+
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -42,6 +50,7 @@ def get_feedbacks():
     feedbacks_list = [{'id': f.id, 'name': f.name, 'description': f.description} for f in feedbacks]
     return jsonify(feedbacks_list)
 
+
 @app.route('/api/feedbacks', methods=['POST'])
 def add_feedbacks():
     name = request.json.get('name')
@@ -50,6 +59,33 @@ def add_feedbacks():
     db.session.add(new_feedback)
     db.session.commit()
     return jsonify({'id': new_feedback.id, 'name': new_feedback.name, 'description': new_feedback.description}), 201
+
+
+
+
+
+@app.route('/api/downloadcv', methods=['POST'])
+def download_cv():
+    date = request.json.get('date')
+    new_feedback = Downloadcv(date=date)
+    db.session.add(new_feedback)
+    db.session.commit()
+    return jsonify({'id': new_feedback.id, 'date': new_feedback.date }), 201
+
+
+@app.route('/api/clickdev', methods=['POST'])
+def click_dev():
+    print("hola mundo")
+    date = request.json.get('date')
+    new_feedback = Clickdev(date=date)
+    db.session.add(new_feedback)
+    db.session.commit()
+    return jsonify({'id': new_feedback.id, 'date': new_feedback.date }), 201
+
+
+
+
+
 
 @app.route('/api/feedbacks/<int:feedback_id>', methods=['GET'])
 def get_feedback(feedback_id):
