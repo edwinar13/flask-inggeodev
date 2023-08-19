@@ -98,11 +98,11 @@ def click_dev():
     user_agent = request.headers.get('User-Agent')
     browser, os = get_browser_and_os(user_agent)
     geolocation = get_geolocation(visitor_ip)
-    print(browser, os)
-    print(geolocation)
 
     data_inf = "[{},{}]  [{}]".format(browser, os, geolocation)
     new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url, data_inf=data_inf)
+    '''
+    '''
     db.session.add(new_information)
     db.session.commit()
 
@@ -160,9 +160,6 @@ def get_geolocation(ip_address):
 
     location = geo_lookup.get_location(ip_address)
 
-    '''
-    {'ip': '127.0.0.1', 'type': 'ipv4', 'continent_code': None, 'continent_name': None, 'country_code': None, 'country_name': None, 'region_code': None, 'region_name': None, 'city': None, 'zip': None, 'latitude': 0.0, 'longitude': 0.0, 'location': {'geoname_id': None, 'capital': None, 'languages': None, 'country_flag': None, 'country_flag_emoji': None, 'country_flag_emoji_unicode': None, 'calling_code': None, 'is_eu': None}} <class 'dict'>
-    '''
 
     city= location["city"]
     region_name= location["region_name"]
@@ -178,5 +175,7 @@ def get_geolocation(ip_address):
     print("Latitud:", latitude)
     print("Longitude:", longitude)
 
-    text_data = "Ciudad:{};Región:{};País:{};Continente:{};Latitud:{};longitude:{};".format(city, region_name, country_name, continent_name, latitude, longitude)
+    text_data = "País:{};Data:{}".format(country_name, location)
     return text_data
+
+#    'ip': '190.217.106.8',
