@@ -44,6 +44,8 @@ class Clickdev(db.Model):
     date = db.Column(db.String(100), nullable=False)
     ip_address = db.Column(db.String(100), nullable=False)
     referer_url  = db.Column(db.String(1000), nullable=False)
+    data_inf  = db.Column(db.String(1000), nullable=False)
+
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -95,11 +97,12 @@ def click_dev():
 
     user_agent = request.headers.get('User-Agent')
     browser, os = get_browser_and_os(user_agent)
-    print(browser, os)
     geolocation = get_geolocation(visitor_ip)
+    print(browser, os)
     print(geolocation)
 
-    new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url)
+    data_inf = "[{},{}]  [{}]".format(browser, os, geolocation)
+    new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url, data_inf=data_inf)
     db.session.add(new_information)
     db.session.commit()
 
@@ -107,7 +110,8 @@ def click_dev():
         'id': new_information.id,
         'date': new_information.date,
         'ip_address': new_information.ip_address,
-        'referer_url': new_information.referer_url
+        'referer_url': new_information.referer_url,
+        'data_inf':new_information.data_inf
     }), 201
 
 
