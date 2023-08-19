@@ -2,9 +2,16 @@ from flask import Flask, request,  jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
+from datetime import datetime
+import pytz
+from user_agents import parse 
+from ipstack import GeoLookup
 
 app = Flask(__name__)
 CORS(app)
+
+
+
 
 
 #----------------------------------------------------------------------
@@ -35,6 +42,8 @@ class Downloadcv(db.Model):
 class Clickdev(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(100), nullable=False)
+    ip_address = db.Column(db.String(100), nullable=False)
+    referer_url  = db.Column(db.String(1000), nullable=False)
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -75,12 +84,35 @@ def download_cv():
 
 @app.route('/api/clickdev', methods=['POST'])
 def click_dev():
-    print("hola mundo")
+    '''
     date = request.json.get('date')
-    new_feedback = Clickdev(date=date)
-    db.session.add(new_feedback)
+    '''
+    bogota_tz = pytz.timezone('America/Bogota')
+    bogota_time = datetime.now(bogota_tz)
+    visitor_ip = request.remote_addr
+    referer_url = request.headers.get('Referer')
+
+
+    user_agent = request.headers.get('User-Agent')
+    browser, os = get_browser_and_os(user_agent)
+    print(browser, os)
+    geolocation = get_geolocation(visitor_ip)
+    print(geolocation)
+
+    new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url)
+    '''
+    db.session.add(new_information)
     db.session.commit()
-    return jsonify({'id': new_feedback.id, 'date': new_feedback.date }), 201
+    '''
+    return jsonify({
+        'id': new_information.id,
+        'date': new_information.date,
+        'ip_address': new_information.ip_address,
+        'referer_url': new_information.referer_url
+    }), 201
+
+
+
 
 
 
@@ -107,3 +139,41 @@ def delete_feedback(feedback_id):
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
+
+
+
+def get_browser_and_os(user_agent):
+    user_agent_data = parse(user_agent)
+    browser = user_agent_data.browser.family
+    os = user_agent_data.os.family
+    return browser, os
+
+
+
+
+geo_lookup = GeoLookup("dae96249832155cb240097ae081ae102")
+
+def get_geolocation(ip_address):  
+
+    location = geo_lookup.get_location(ip_address)
+
+    '''
+    {'ip': '127.0.0.1', 'type': 'ipv4', 'continent_code': None, 'continent_name': None, 'country_code': None, 'country_name': None, 'region_code': None, 'region_name': None, 'city': None, 'zip': None, 'latitude': 0.0, 'longitude': 0.0, 'location': {'geoname_id': None, 'capital': None, 'languages': None, 'country_flag': None, 'country_flag_emoji': None, 'country_flag_emoji_unicode': None, 'calling_code': None, 'is_eu': None}} <class 'dict'>
+    '''
+
+    city= location["city"]
+    region_name= location["region_name"]
+    country_name=location["country_name"]
+    continent_name= location["continent_name"]
+    latitude = location["latitude"]
+    longitude = location["longitude"]
+    
+    print("Ciudad:", city)
+    print("Región:", region_name)
+    print("País:", country_name)
+    print("Continente:", continent_name)
+    print("Latitud:", latitude)
+    print("Longitude:", longitude)
+
+    text_data = "Ciudad:{};Región:{};País:{};Continente:{};Latitud:{};longitude:{};".format(city, region_name, country_name, continent_name, latitude, longitude)
+    return text_data
