@@ -91,8 +91,9 @@ def click_dev():
     '''
     bogota_tz = pytz.timezone('America/Bogota')
     bogota_time = datetime.now(bogota_tz)
-    visitor_ip = request.remote_addr
+    visitor_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     referer_url = request.headers.get('Referer')
+
 
 
     user_agent = request.headers.get('User-Agent')
@@ -100,6 +101,7 @@ def click_dev():
     geolocation = get_geolocation(visitor_ip)
 
     data_inf = "[{},{}]  [{}]".format(browser, os, geolocation)
+    
     new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url, data_inf=data_inf)
     '''
     '''
@@ -179,3 +181,7 @@ def get_geolocation(ip_address):
     return text_data
 
 #    'ip': '190.217.106.8',
+#[Chrome,Windows]  [País:None;Data:{'ip': '192.168.0.3', 'type': 'ipv4', 'continent_code': None, 'continent_name': None, 'country_code': None, 'country_name': None, 'region_code': None, 'region_name': None, 'city': None, 'zip': None, 'latitude': 0.0, 'longitude': 0.0, 'location': {'geoname_id': None, 'capital': None, 'languages': None, 'country_flag': None, 'country_flag_emoji': None, 'country_flag_emoji_unicode': None, 'calling_code': None, 'is_eu': None}}]
+
+
+get_geolocation('190.217.106.8')
