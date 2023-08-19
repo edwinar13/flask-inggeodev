@@ -100,10 +100,9 @@ def click_dev():
     print(geolocation)
 
     new_information = Clickdev(date=bogota_time, ip_address=visitor_ip, referer_url=referer_url)
-    '''
     db.session.add(new_information)
     db.session.commit()
-    '''
+
     return jsonify({
         'id': new_information.id,
         'date': new_information.date,
